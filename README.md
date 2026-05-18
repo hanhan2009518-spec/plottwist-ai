@@ -49,7 +49,7 @@ The current Pro AI Mode UI is a placeholder only.
 Run the local preview server:
 
 ```bash
-npm start
+npm run serve
 ```
 
 Or directly:

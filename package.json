@@ -5,7 +5,7 @@
   "description": "A front-end MVP for generating short drama scripts, plot twists, characters, TikTok titles, and meme captions.",
   "type": "module",
   "scripts": {
-    "start": "node server.mjs",
+    "dev": "node server.mjs",
     "serve": "node server.mjs",
     "assets": "python3 scripts/create_hero_asset.py",
     "seo": "node scripts/sync_seo_files.mjs",
