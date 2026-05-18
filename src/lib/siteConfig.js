@@ -1,6 +1,6 @@
 import { blogPosts } from "../data/blogPosts.js";
 
-export const SITE_URL = "https://plottwist-ai-iota.vercel.app";
+export const SITE_URL = "https://tryplottwistai.com";
 export const SITE_NAME = "PlotTwist AI";
 export const DEFAULT_KEYWORDS =
   "AI short drama generator, short drama script generator, plot twist generator, TikTok title generator, character generator, meme caption generator, AI video script, viral short video ideas";

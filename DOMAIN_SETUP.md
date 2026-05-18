@@ -9,7 +9,7 @@ Important: do not buy a domain until you have checked the first-year price, rene
 Best overall brand choice:
 
 ```text
-plottwistai.com
+tryplottwistai.com
 ```
 
 Why:
@@ -105,13 +105,13 @@ After buying the domain:
 4. Add the domain, for example:
 
    ```text
-   plottwistai.com
+   tryplottwistai.com
    ```
 
 5. Also add:
 
    ```text
-   www.plottwistai.com
+   www.tryplottwistai.com
    ```
 
 6. Vercel will show the DNS records you need to add at your domain registrar.
@@ -125,7 +125,7 @@ Vercel may ask for records similar to these:
 For the root domain:
 
 ```text
-plottwistai.com
+tryplottwistai.com
 ```
 
 Use an A record:
@@ -141,7 +141,7 @@ Value: 76.76.21.21
 For:
 
 ```text
-www.plottwistai.com
+www.tryplottwistai.com
 ```
 
 Use a CNAME record:
@@ -159,19 +159,19 @@ Always follow the exact values shown by Vercel, because Vercel may update instru
 Recommended:
 
 ```text
-https://plottwistai.com
+https://tryplottwistai.com
 ```
 
 Then redirect:
 
 ```text
-https://www.plottwistai.com
+https://www.tryplottwistai.com
 ```
 
 to:
 
 ```text
-https://plottwistai.com
+https://tryplottwistai.com
 ```
 
 This keeps SEO clean because one domain becomes the canonical version.
@@ -186,16 +186,16 @@ In Vercel:
 
 In a browser:
 
-- Open `https://plottwistai.com`.
-- Open `https://www.plottwistai.com`.
+- Open `https://tryplottwistai.com`.
+- Open `https://www.tryplottwistai.com`.
 - Confirm both load the same website.
 - Confirm one version redirects to the preferred version if you configured a redirect.
 
 Technical checks:
 
 ```bash
-curl -I https://plottwistai.com
-curl -I https://www.plottwistai.com
+curl -I https://tryplottwistai.com
+curl -I https://www.tryplottwistai.com
 ```
 
 Expected result:
@@ -227,7 +227,7 @@ export const SITE_URL = "https://plottwist-ai-iota.vercel.app";
 to:
 
 ```js
-export const SITE_URL = "https://plottwistai.com";
+export const SITE_URL = "https://tryplottwistai.com";
 ```
 
 Then run:
@@ -254,7 +254,7 @@ The current static MVP uses `src/lib/siteConfig.js` as the real source of truth.
 For future Next.js or server-side versions, also set:
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://plottwistai.com
+NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
 ```
 
 in Vercel:
@@ -264,4 +264,3 @@ Project Settings -> Environment Variables
 ```
 
 For the current version, changing `src/lib/siteConfig.js` and rebuilding is enough.
-

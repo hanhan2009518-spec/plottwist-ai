@@ -116,7 +116,7 @@ Planned variables are listed in `.env.example`:
 OPENAI_API_KEY=your_openai_api_key_here
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
-NEXT_PUBLIC_SITE_URL=https://plottwist-ai-iota.vercel.app
+NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
 ```
 
 For the current static version, update the public site URL in:
