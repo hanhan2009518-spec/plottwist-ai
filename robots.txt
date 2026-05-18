@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://plottwist-ai.vercel.app/sitemap.xml

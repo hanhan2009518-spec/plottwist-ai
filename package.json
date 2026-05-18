@@ -1,0 +1,23 @@
+{
+  "name": "plottwist-ai-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A front-end MVP for generating short drama scripts, plot twists, characters, TikTok titles, and meme captions.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "serve": "node server.mjs",
+    "assets": "python3 scripts/create_hero_asset.py",
+    "seo": "node scripts/sync_seo_files.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "keywords": [
+    "react",
+    "tailwind",
+    "short-drama",
+    "tiktok",
+    "ai-tool"
+  ],
+  "author": "",
+  "license": "MIT"
+}

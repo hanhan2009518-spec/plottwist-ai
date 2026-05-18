@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(183, 243, 66, 0.12), transparent 28rem),
+    linear-gradient(135deg, #09090f 0%, #15111f 42%, #111827 100%);
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+}
+
+select,
+input,
+textarea,
+option {
+  background-color: #ffffff;
+  color: #0f172a;
+  color-scheme: light;
+}
+
+.noise-layer {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 70px rgba(124, 58, 237, 0.25);
+}
+
+.tool-card {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05)),
+    rgba(10, 10, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.tool-card:hover {
+  border-color: rgba(183, 243, 66, 0.58);
+  transform: translateY(-3px);
+}
+
+.focus-ring:focus-visible {
+  outline: 3px solid rgba(183, 243, 66, 0.85);
+  outline-offset: 3px;
+}
+
+.content-prose p {
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.8;
+}
+
+.content-prose strong {
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
