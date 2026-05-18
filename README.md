@@ -116,7 +116,7 @@ Planned variables are listed in `.env.example`:
 OPENAI_API_KEY=your_openai_api_key_here
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
-NEXT_PUBLIC_SITE_URL=https://plottwist-ai.vercel.app
+NEXT_PUBLIC_SITE_URL=https://plottwist-ai-iota.vercel.app
 ```
 
 For the current static version, update the public site URL in:
@@ -126,6 +126,16 @@ src/lib/siteConfig.js
 ```
 
 `SITE_URL` is the single source used for canonical URLs, sitemap URLs, robots.txt, and Open Graph URLs.
+
+## Custom Domain
+
+Custom domain buying and Vercel binding notes are in:
+
+```text
+DOMAIN_SETUP.md
+```
+
+After a final domain is connected, update `SITE_URL` in `src/lib/siteConfig.js` and run `npm run build`. The build refreshes canonical URLs, `sitemap.xml`, `robots.txt`, Open Graph URLs, and prerendered SEO metadata.
 
 ## Project Structure
 
