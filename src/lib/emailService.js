@@ -1,28 +1,8 @@
+import { SITE_URL } from "./siteConfig.js";
+
 export const CONTACT_EMAIL = "hanhan2009518@gmail.com";
-export const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
+export const FORM_ACTION = `https://formsubmit.co/${CONTACT_EMAIL}`;
 
-export async function submitEmailForm(source, payload) {
-  const response = await fetch(FORM_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      _subject: `PlotTwist AI - ${source}`,
-      _template: "table",
-      _captcha: "false",
-      _honey: "",
-      website: "PlotTwist AI",
-      source,
-      submittedAt: new Date().toISOString(),
-      ...payload
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error("Email service request failed.");
-  }
-
-  return response.json().catch(() => ({}));
+export function formReturnUrl(path = "/") {
+  return `${SITE_URL}${path}`;
 }

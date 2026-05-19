@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { Mail } from "lucide-react";
-import { submitEmailForm } from "../lib/emailService.js";
+import { FORM_ACTION, formReturnUrl } from "../lib/emailService.js";
 
 const html = htm.bind(React.createElement);
 
@@ -10,44 +10,6 @@ const creatorTypes = ["TikTok creator", "YouTube Shorts creator", "Student creat
 export function WaitlistSection({ compact = false }) {
   const [email, setEmail] = useState("");
   const [creatorType, setCreatorType] = useState(creatorTypes[0]);
-  const [message, setMessage] = useState("");
-
-  async function joinWaitlist(event) {
-    event.preventDefault();
-
-    if (!email.trim()) {
-      setMessage("Enter an email to join the waitlist.");
-      return;
-    }
-
-    const entry = {
-      email: email.trim(),
-      creatorType,
-      joinedAt: new Date().toISOString()
-    };
-
-    try {
-      await submitEmailForm("Pro AI Mode waitlist", entry);
-      let existing = [];
-      try {
-        existing = JSON.parse(localStorage.getItem("plottwist_waitlist") || "[]");
-      } catch {
-        existing = [];
-      }
-      localStorage.setItem("plottwist_waitlist", JSON.stringify([entry, ...existing].slice(0, 50)));
-      setMessage("Thanks for joining the waitlist. Check your inbox if email confirmation is required.");
-      setEmail("");
-    } catch {
-      let existing = [];
-      try {
-        existing = JSON.parse(localStorage.getItem("plottwist_waitlist") || "[]");
-      } catch {
-        existing = [];
-      }
-      localStorage.setItem("plottwist_waitlist", JSON.stringify([entry, ...existing].slice(0, 50)));
-      setMessage("Saved locally, but email delivery failed. Please try again later.");
-    }
-  }
 
   return html`
     <section className=${compact ? "rounded-lg border border-white/10 bg-white/[0.055] p-5" : "glass-panel rounded-lg p-6 sm:p-8"}>
@@ -63,15 +25,25 @@ export function WaitlistSection({ compact = false }) {
         </div>
       </div>
 
-      <form className="mt-5 grid gap-3 md:grid-cols-[1fr_220px_auto]" onSubmit=${joinWaitlist}>
+      <form className="mt-5 grid gap-3 md:grid-cols-[1fr_220px_auto]" action=${FORM_ACTION} method="POST">
+        <input type="hidden" name="_subject" value="PlotTwist AI - Pro AI Mode waitlist" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_next" value=${formReturnUrl("/?waitlist=joined")} />
+        <input type="text" name="_honey" tabIndex="-1" autoComplete="off" className="hidden" />
+        <input type="hidden" name="source" value="Pro AI Mode waitlist" />
+        <input type="hidden" name="website" value="PlotTwist AI" />
         <input
+          name="email"
           type="email"
+          required
           value=${email}
           onInput=${(event) => setEmail(event.target.value)}
           placeholder="creator@example.com"
           className="focus-ring min-h-12 rounded-lg border border-white/10 bg-white px-3 text-sm font-semibold text-slate-950 placeholder:text-slate-500"
         />
         <select
+          name="creatorType"
           value=${creatorType}
           onChange=${(event) => setCreatorType(event.target.value)}
           className="focus-ring min-h-12 rounded-lg border border-white/10 bg-white px-3 text-sm font-semibold text-slate-950"
@@ -82,7 +54,7 @@ export function WaitlistSection({ compact = false }) {
           Join Waitlist
         </button>
       </form>
-      ${message && html`<p className="mt-3 text-sm font-semibold text-lime-300">${message}</p>`}
+      <p className="mt-3 text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox. The first test may ask the site owner to confirm the email address.</p>
     </section>
   `;
 }

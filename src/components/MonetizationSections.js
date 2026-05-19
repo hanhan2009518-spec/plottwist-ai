@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { BadgeDollarSign, Crown, Library, Mail } from "lucide-react";
-import { submitEmailForm } from "../lib/emailService.js";
+import { FORM_ACTION, formReturnUrl } from "../lib/emailService.js";
 import { routes } from "../lib/router.js";
 
 const html = htm.bind(React.createElement);
@@ -29,26 +29,6 @@ const sections = [
 
 export function MonetizationSections() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  async function submitEmail(event) {
-    event.preventDefault();
-    if (!email.trim()) {
-      setMessage("Enter an email to join the list.");
-      return;
-    }
-
-    try {
-      await submitEmailForm("Homepage email signup", {
-        email: email.trim(),
-        interest: "Launch updates, prompt drops, Pro AI Mode and premium templates"
-      });
-      setEmail("");
-      setMessage("Thanks. Your email was sent to the PlotTwist AI inbox.");
-    } catch {
-      setMessage("Email delivery failed. Please try again later.");
-    }
-  }
 
   return html`
     <section className="mx-auto mt-20 max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -84,12 +64,22 @@ export function MonetizationSections() {
           </div>
         </div>
 
-        <form className="glass-panel rounded-lg p-4" onSubmit=${submitEmail}>
+        <form className="glass-panel rounded-lg p-4" action=${FORM_ACTION} method="POST">
+          <input type="hidden" name="_subject" value="PlotTwist AI - Homepage email signup" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_next" value=${formReturnUrl("/?signup=joined")} />
+          <input type="text" name="_honey" tabIndex="-1" autoComplete="off" className="hidden" />
+          <input type="hidden" name="source" value="Homepage email signup" />
+          <input type="hidden" name="interest" value="Launch updates, prompt drops, Pro AI Mode and premium templates" />
+          <input type="hidden" name="website" value="PlotTwist AI" />
           <label className="text-sm font-semibold text-white/80" htmlFor="email-signup">Creator email</label>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row">
             <input
               id="email-signup"
+              name="email"
               type="email"
+              required
               value=${email}
               onInput=${(event) => setEmail(event.target.value)}
               placeholder="creator@example.com"
@@ -99,7 +89,7 @@ export function MonetizationSections() {
               Join list
             </button>
           </div>
-          ${message && html`<p className="mt-3 text-sm text-white/65">${message}</p>`}
+          <p className="mt-3 text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox.</p>
         </form>
       </div>
     </section>

@@ -1,43 +1,15 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { Send } from "lucide-react";
-import { CONTACT_EMAIL, submitEmailForm } from "../lib/emailService.js";
+import { CONTACT_EMAIL, FORM_ACTION, formReturnUrl } from "../lib/emailService.js";
 
 const html = htm.bind(React.createElement);
 
 export function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState("");
-  const [isSending, setIsSending] = useState(false);
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
-    setStatus("");
-  }
-
-  async function submit(event) {
-    event.preventDefault();
-
-    if (!form.email.trim() || !form.message.trim()) {
-      setStatus("Enter your email and message before sending.");
-      return;
-    }
-
-    setIsSending(true);
-    try {
-      await submitEmailForm("Contact form", {
-        name: form.name.trim() || "No name entered",
-        email: form.email.trim(),
-        _replyto: form.email.trim(),
-        message: form.message.trim()
-      });
-      setForm({ name: "", email: "", message: "" });
-      setStatus("Message sent. Check your inbox if email confirmation is required.");
-    } catch {
-      setStatus("Message could not be sent. Please email us directly.");
-    } finally {
-      setIsSending(false);
-    }
   }
 
   return html`
@@ -50,10 +22,19 @@ export function ContactPage() {
           <a className="font-bold text-lime-300 hover:text-white" href=${`mailto:${CONTACT_EMAIL}`}> ${CONTACT_EMAIL}</a>.
         </p>
 
-        <form className="mt-8 grid gap-4" onSubmit=${submit}>
+        <form className="mt-8 grid gap-4" action=${FORM_ACTION} method="POST">
+          <input type="hidden" name="_subject" value="PlotTwist AI - Contact form" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_next" value=${formReturnUrl("/contact?message=sent")} />
+          <input type="text" name="_honey" tabIndex="-1" autoComplete="off" className="hidden" />
+          <input type="hidden" name="_replyto" value=${form.email} />
+          <input type="hidden" name="source" value="Contact form" />
+          <input type="hidden" name="website" value="PlotTwist AI" />
           <label>
             <span className="text-sm font-bold text-white/78">Name</span>
             <input
+              name="name"
               value=${form.name}
               onInput=${(event) => updateField("name", event.target.value)}
               className="focus-ring mt-2 min-h-12 w-full rounded-lg border border-white/10 bg-white px-3 text-slate-950"
@@ -63,7 +44,9 @@ export function ContactPage() {
           <label>
             <span className="text-sm font-bold text-white/78">Email</span>
             <input
+              name="email"
               type="email"
+              required
               value=${form.email}
               onInput=${(event) => updateField("email", event.target.value)}
               className="focus-ring mt-2 min-h-12 w-full rounded-lg border border-white/10 bg-white px-3 text-slate-950"
@@ -73,6 +56,8 @@ export function ContactPage() {
           <label>
             <span className="text-sm font-bold text-white/78">Message</span>
             <textarea
+              name="message"
+              required
               value=${form.message}
               onInput=${(event) => updateField("message", event.target.value)}
               className="focus-ring mt-2 min-h-32 w-full rounded-lg border border-white/10 bg-white px-3 py-3 text-slate-950"
@@ -81,9 +66,9 @@ export function ContactPage() {
           </label>
           <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white sm:w-max">
             <${Send} size=${17} />
-            ${isSending ? "Sending..." : "Send message"}
+            Send message
           </button>
-          ${status && html`<p className="text-sm font-semibold text-lime-300">${status}</p>`}
+          <p className="text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox. The first test may ask the site owner to confirm the email address.</p>
         </form>
       </section>
     </main>
