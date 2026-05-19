@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { BadgeDollarSign, Crown, Library, Mail } from "lucide-react";
+import { submitEmailForm } from "../lib/emailService.js";
 import { routes } from "../lib/router.js";
 
 const html = htm.bind(React.createElement);
@@ -30,9 +31,23 @@ export function MonetizationSections() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  function submitEmail(event) {
+  async function submitEmail(event) {
     event.preventDefault();
-    setMessage(email ? "Preview signup saved locally. Connect an email service later." : "Enter an email to preview the signup flow.");
+    if (!email.trim()) {
+      setMessage("Enter an email to join the list.");
+      return;
+    }
+
+    try {
+      await submitEmailForm("Homepage email signup", {
+        email: email.trim(),
+        interest: "Launch updates, prompt drops, Pro AI Mode and premium templates"
+      });
+      setEmail("");
+      setMessage("Thanks. Your email was sent to the PlotTwist AI inbox.");
+    } catch {
+      setMessage("Email delivery failed. Please try again later.");
+    }
   }
 
   return html`
@@ -63,7 +78,7 @@ export function MonetizationSections() {
             <div>
               <h3 className="text-xl font-extrabold">Email Signup</h3>
               <p className="mt-2 text-sm leading-6 text-white/65">
-                A reserved signup block for launch updates, prompt drops, Pro AI Mode and premium template releases.
+                A live signup block for launch updates, prompt drops, Pro AI Mode and premium template releases.
               </p>
             </div>
           </div>

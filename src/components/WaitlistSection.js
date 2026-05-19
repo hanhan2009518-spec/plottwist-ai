@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { Mail } from "lucide-react";
+import { submitEmailForm } from "../lib/emailService.js";
 
 const html = htm.bind(React.createElement);
 
@@ -11,7 +12,7 @@ export function WaitlistSection({ compact = false }) {
   const [creatorType, setCreatorType] = useState(creatorTypes[0]);
   const [message, setMessage] = useState("");
 
-  function joinWaitlist(event) {
+  async function joinWaitlist(event) {
     event.preventDefault();
 
     if (!email.trim()) {
@@ -24,15 +25,28 @@ export function WaitlistSection({ compact = false }) {
       creatorType,
       joinedAt: new Date().toISOString()
     };
-    let existing = [];
+
     try {
-      existing = JSON.parse(localStorage.getItem("plottwist_waitlist") || "[]");
+      await submitEmailForm("Pro AI Mode waitlist", entry);
+      let existing = [];
+      try {
+        existing = JSON.parse(localStorage.getItem("plottwist_waitlist") || "[]");
+      } catch {
+        existing = [];
+      }
+      localStorage.setItem("plottwist_waitlist", JSON.stringify([entry, ...existing].slice(0, 50)));
+      setMessage("Thanks for joining the waitlist. Check your inbox if email confirmation is required.");
+      setEmail("");
     } catch {
-      existing = [];
+      let existing = [];
+      try {
+        existing = JSON.parse(localStorage.getItem("plottwist_waitlist") || "[]");
+      } catch {
+        existing = [];
+      }
+      localStorage.setItem("plottwist_waitlist", JSON.stringify([entry, ...existing].slice(0, 50)));
+      setMessage("Saved locally, but email delivery failed. Please try again later.");
     }
-    localStorage.setItem("plottwist_waitlist", JSON.stringify([entry, ...existing].slice(0, 50)));
-    setMessage("Thanks for joining the waitlist.");
-    setEmail("");
   }
 
   return html`

@@ -9,7 +9,7 @@ export function PrivacyPage() {
       <section className="glass-panel content-prose rounded-lg p-8 sm:p-10">
         <p className="text-sm font-bold uppercase tracking-[0.18em] text-lime-300">Privacy Policy</p>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Privacy Policy</h1>
-        <p className="mt-4 text-sm font-semibold text-white/60">Last updated: May 18, 2026</p>
+        <p className="mt-4 text-sm font-semibold text-white/60">Last updated: May 19, 2026</p>
         <p className="mt-6">
           PlotTwist AI is a free MVP website that helps users generate short drama scripts, plot twists, character ideas, TikTok titles and meme captions.
         </p>
@@ -18,7 +18,10 @@ export function PrivacyPage() {
           The current version does not require user accounts, does not collect payment information, does not connect to a real AI API and does not save user-generated content.
         </p>
         <p className="mt-4">
-          Some forms, such as contact or email signup areas, may appear as placeholders in this MVP. Unless a form is connected to a real service in a future version, submitted information is not stored by this site.
+          If you use the contact form, email signup form or waitlist form, we may collect the information you submit, such as your name, email address, creator type and message. These submissions are sent to the PlotTwist AI inbox through a third-party form delivery service so we can respond to feedback and send product updates.
+        </p>
+        <p className="mt-4">
+          You can choose not to submit these forms. Generated scripts and story ideas are still created in the browser and are not saved by PlotTwist AI.
         </p>
         <h2 className="mt-8 text-xl font-extrabold text-white">Generated Content</h2>
         <p className="mt-4">
@@ -26,7 +29,7 @@ export function PrivacyPage() {
         </p>
         <h2 className="mt-8 text-xl font-extrabold text-white">Future Analytics, Cookies and Advertising</h2>
         <p className="mt-4">
-          Future versions may use analytics tools such as Google Analytics, cookies, advertising networks, affiliate links, email signup tools and premium template services. If these features are added, this Privacy Policy should be updated to explain what data is collected and how it is used.
+          Future versions may use analytics tools such as Google Analytics, cookies, advertising networks, affiliate links and premium template services. If these features are added, this Privacy Policy should be updated to explain what data is collected and how it is used.
         </p>
         <h2 className="mt-8 text-xl font-extrabold text-white">Third-Party Links</h2>
         <p className="mt-4">
