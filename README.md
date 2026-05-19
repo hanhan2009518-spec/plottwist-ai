@@ -108,11 +108,9 @@ The build script generates static HTML files for all sitemap routes, including `
 
 ## Environment Variables
 
-Current MVP requires one production email variable if contact, waitlist and signup forms should send real messages:
+Current MVP does not require server environment variables to run.
 
-```bash
-WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
-```
+Contact, waitlist and signup forms use the Web3Forms free client-side mode. This means the Web3Forms public form access key is included in the front-end request. It is not an OpenAI key, Stripe key or email password, but it can be rotated in Web3Forms if spam submissions become a problem.
 
 Planned Pro AI and payment variables are also listed in `.env.example`:
 
@@ -120,7 +118,6 @@ Planned Pro AI and payment variables are also listed in `.env.example`:
 OPENAI_API_KEY=your_openai_api_key_here
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
-WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
 NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
 ```
 
