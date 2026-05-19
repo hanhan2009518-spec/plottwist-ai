@@ -137,6 +137,20 @@ DOMAIN_SETUP.md
 
 After a final domain is connected, update `SITE_URL` in `src/lib/siteConfig.js` and run `npm run build`. The build refreshes canonical URLs, `sitemap.xml`, `robots.txt`, Open Graph URLs, and prerendered SEO metadata.
 
+## Google Search Console
+
+Google Search Console setup notes are in:
+
+```text
+SEARCH_CONSOLE_SETUP.md
+```
+
+Use the current production sitemap:
+
+```text
+https://tryplottwistai.com/sitemap.xml
+```
+
 ## Project Structure
 
 ```text
