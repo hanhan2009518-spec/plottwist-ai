@@ -108,14 +108,19 @@ The build script generates static HTML files for all sitemap routes, including `
 
 ## Environment Variables
 
-Current MVP does not require real environment variables to run.
+Current MVP requires one production email variable if contact, waitlist and signup forms should send real messages:
 
-Planned variables are listed in `.env.example`:
+```bash
+WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
+```
+
+Planned Pro AI and payment variables are also listed in `.env.example`:
 
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
+WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
 NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
 ```
 

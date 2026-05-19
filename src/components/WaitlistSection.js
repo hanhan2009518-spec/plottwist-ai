@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { Mail } from "lucide-react";
-import { FORM_ACTION, formReturnUrl } from "../lib/emailService.js";
+import { submitEmailForm } from "../lib/emailService.js";
 
 const html = htm.bind(React.createElement);
 
@@ -10,6 +10,29 @@ const creatorTypes = ["TikTok creator", "YouTube Shorts creator", "Student creat
 export function WaitlistSection({ compact = false }) {
   const [email, setEmail] = useState("");
   const [creatorType, setCreatorType] = useState(creatorTypes[0]);
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      await submitEmailForm({
+        source: "Pro AI Mode waitlist",
+        subject: "PlotTwist AI - Pro AI Mode waitlist",
+        email,
+        creatorType
+      });
+      setStatus("success");
+      setMessage("Thanks for joining the waitlist. We will email you when Pro AI Mode is ready.");
+      setEmail("");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error.message || "Signup could not be sent. Please try again.");
+    }
+  }
 
   return html`
     <section className=${compact ? "rounded-lg border border-white/10 bg-white/[0.055] p-5" : "glass-panel rounded-lg p-6 sm:p-8"}>
@@ -25,14 +48,7 @@ export function WaitlistSection({ compact = false }) {
         </div>
       </div>
 
-      <form className="mt-5 grid gap-3 md:grid-cols-[1fr_220px_auto]" action=${FORM_ACTION} method="POST">
-        <input type="hidden" name="_subject" value="PlotTwist AI - Pro AI Mode waitlist" />
-        <input type="hidden" name="_template" value="table" />
-        <input type="hidden" name="_captcha" value="false" />
-        <input type="hidden" name="_next" value=${formReturnUrl("/?waitlist=joined")} />
-        <input type="text" name="_honey" tabIndex="-1" autoComplete="off" className="hidden" />
-        <input type="hidden" name="source" value="Pro AI Mode waitlist" />
-        <input type="hidden" name="website" value="PlotTwist AI" />
+      <form className="mt-5 grid gap-3 md:grid-cols-[1fr_220px_auto]" onSubmit=${handleSubmit}>
         <input
           name="email"
           type="email"
@@ -50,11 +66,12 @@ export function WaitlistSection({ compact = false }) {
         >
           ${creatorTypes.map((type) => html`<option key=${type} value=${type}>${type}</option>`)}
         </select>
-        <button className="focus-ring rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white">
-          Join Waitlist
+        <button disabled=${status === "loading"} className="focus-ring rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60">
+          ${status === "loading" ? "Sending..." : "Join Waitlist"}
         </button>
       </form>
-      <p className="mt-3 text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox. The first test may ask the site owner to confirm the email address.</p>
+      ${message && html`<p className=${`mt-3 text-xs leading-5 ${status === "error" ? "text-rose-200" : "text-lime-200"}`}>${message}</p>`}
+      <p className="mt-3 text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox.</p>
     </section>
   `;
 }
