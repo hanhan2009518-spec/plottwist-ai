@@ -26,6 +26,7 @@ export function HomePage() {
           </p>
           <p className="mt-5 max-w-2xl text-base leading-8 text-white/68">
             PlotTwist AI helps creators write faster for TikTok, YouTube Shorts, Instagram Reels, Douyin and Xiaohongshu. Use the free smart template generator now, then join the waitlist for Pro AI Mode when real AI generation launches.
+            Start with Simple Mode for fast ideas, or switch to Detailed Mode for more creative control.
           </p>
 
           <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2 text-center sm:gap-3">

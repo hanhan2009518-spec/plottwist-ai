@@ -8,12 +8,29 @@ import { getProModeMessage, proModeState } from "../lib/proMode.js";
 const html = htm.bind(React.createElement);
 const STORY_LIMIT = 1000;
 
+const simpleOptions = {
+  genre: ["School", "Romance", "Mystery", "Revenge", "Comedy", "Sci-Fi"],
+  length: ["30 seconds", "60 seconds", "90 seconds"],
+  tone: ["Shocking", "Funny", "Romantic", "Suspenseful", "Emotional"],
+  endingType: ["Plot Twist", "Happy Ending", "Sad Ending", "Cliffhanger"]
+};
+
+const simpleDefaults = {
+  genre: "School",
+  length: "60 seconds",
+  tone: "Shocking",
+  endingType: "Plot Twist",
+  platform: "TikTok",
+  language: "English",
+  outputStyle: "Fast-paced short drama"
+};
+
 const initialForm = {
   storyIdea: "",
   genre: "School",
   length: "60 seconds",
   platform: "TikTok",
-  mainCharacter: "Poor Student",
+  mainCharacter: "Student",
   relationship: "Best friends",
   mainConflict: "Betrayal",
   tone: "Shocking",
@@ -21,6 +38,55 @@ const initialForm = {
   language: "English",
   outputStyle: "Fast-paced short drama"
 };
+
+const mainCharacterSignals = [
+  ["poor student", "Poor Student"],
+  ["rich ceo", "Rich CEO"],
+  ["ceo", "Rich CEO"],
+  ["best friend", "Best Friend"],
+  ["friend", "Best Friend"],
+  ["teacher", "Teacher"],
+  ["detective", "Detective"],
+  ["villain", "Villain"],
+  ["popular girl", "Popular Girl"],
+  ["quiet boy", "Quiet Boy"],
+  ["transfer student", "New Transfer Student"],
+  ["single mother", "Single Mother"],
+  ["mother", "Single Mother"],
+  ["brother", "Older Brother"],
+  ["sister", "Younger Sister"],
+  ["ex-boyfriend", "Ex-boyfriend"],
+  ["ex-girlfriend", "Ex-girlfriend"],
+  ["stranger", "Stranger"],
+  ["student", "Student"]
+];
+
+const relationshipSignals = [
+  [["best friend", "friend"], "Best friends"],
+  [["enemy", "enemies", "rival"], "Enemies"],
+  [["classmate", "school", "student", "exam", "teacher"], "Classmates"],
+  [["brother", "sister", "sibling"], "Siblings"],
+  [["couple", "love", "dating", "romance"], "Couple"],
+  [["ex", "ex-boyfriend", "ex-girlfriend"], "Ex-couple"],
+  [["teacher"], "Teacher and student"],
+  [["boss", "ceo", "employee"], "Boss and employee"],
+  [["mother", "father", "parent", "child"], "Parent and child"]
+];
+
+const conflictSignals = [
+  [["fail", "failed", "exam", "test", "grade", "teacher"], "Exam pressure"],
+  [["secret", "identity", "hidden", "disguise"], "Hidden identity"],
+  [["betray", "betrayal", "backstab", "lied"], "Betrayal"],
+  [["money", "paid", "debt", "rich", "poor", "price"], "Money problem"],
+  [["revenge", "payback", "expose"], "Revenge"],
+  [["love", "crush", "confession", "date"], "Secret crush"],
+  [["misunderstanding", "screenshot", "rumor"], "Misunderstanding"],
+  [["family", "mother", "father", "parent", "sibling"], "Family pressure"],
+  [["jealous", "jealousy", "rival"], "Jealousy"],
+  [["bully", "bullying", "humiliate"], "Bullying"],
+  [["crime", "detective", "murder", "case", "evidence"], "Crime mystery"],
+  [["time", "loop", "future", "tomorrow"], "Time loop"]
+];
 
 function Field({ label, value, options, onChange }) {
   const fieldId = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -46,6 +112,29 @@ function OutputBlock({ title, children }) {
       <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-lime-300">${title}</h3>
       <div className="mt-3 whitespace-pre-line text-sm leading-7 text-white/78">${children}</div>
     </section>
+  `;
+}
+
+function FormActions({ isLoading, regenerate, clearForm, copyResult }) {
+  return html`
+    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white">
+        <${WandSparkles} size=${18} />
+        ${isLoading ? "Generating..." : "Generate Script"}
+      </button>
+      <button type="button" onClick=${regenerate} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-lime-300/45 px-5 py-3 text-sm font-extrabold text-lime-300 transition hover:bg-lime-300 hover:text-slate-950">
+        <${RotateCcw} size=${17} />
+        Regenerate
+      </button>
+      <button type="button" onClick=${clearForm} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 px-5 py-3 text-sm font-bold text-white transition hover:border-lime-300 hover:text-lime-300">
+        <${Eraser} size=${17} />
+        Clear
+      </button>
+      <button type="button" onClick=${copyResult} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-lime-300">
+        <${Clipboard} size=${17} />
+        Copy Result
+      </button>
+    </div>
   `;
 }
 
@@ -80,8 +169,62 @@ function fallbackCopyText(text) {
   return copied;
 }
 
+function normalizedSimpleValue(key, value) {
+  return simpleOptions[key].includes(value) ? value : simpleDefaults[key];
+}
+
+function lowerIdea(storyIdea, genre) {
+  return `${storyIdea || ""} ${genre || ""}`.toLowerCase();
+}
+
+function inferMainCharacter(storyIdea) {
+  const lower = lowerIdea(storyIdea);
+  const matched = mainCharacterSignals.find(([signal]) => lower.includes(signal));
+  return matched?.[1] || "Student";
+}
+
+function inferRelationship(storyIdea, genre) {
+  const lower = lowerIdea(storyIdea, genre);
+  const matched = relationshipSignals.find(([signals]) => signals.some((signal) => lower.includes(signal)));
+  if (matched) return matched[1];
+  if (genre === "Romance") return "Couple";
+  if (genre === "School") return "Classmates";
+  if (genre === "Mystery") return "Stranger and stranger";
+  return "Best friends";
+}
+
+function inferConflict(storyIdea, genre) {
+  const lower = lowerIdea(storyIdea, genre);
+  const matched = conflictSignals.find(([signals]) => signals.some((signal) => lower.includes(signal)));
+  if (matched) return matched[1];
+  if (genre === "Revenge") return "Revenge";
+  if (genre === "Romance") return "Secret crush";
+  if (genre === "Mystery") return "Crime mystery";
+  if (genre === "School") return "Exam pressure";
+  return "Betrayal";
+}
+
+function buildSimplePayload(form) {
+  const genre = normalizedSimpleValue("genre", form.genre);
+
+  return {
+    storyIdea: form.storyIdea,
+    genre,
+    length: normalizedSimpleValue("length", form.length),
+    platform: simpleDefaults.platform,
+    mainCharacter: inferMainCharacter(form.storyIdea),
+    relationship: inferRelationship(form.storyIdea, genre),
+    mainConflict: inferConflict(form.storyIdea, genre),
+    tone: normalizedSimpleValue("tone", form.tone),
+    endingType: normalizedSimpleValue("endingType", form.endingType),
+    language: simpleDefaults.language,
+    outputStyle: simpleDefaults.outputStyle
+  };
+}
+
 export function ScriptGeneratorPage() {
   const [activeMode, setActiveMode] = useState("template");
+  const [templateMode, setTemplateMode] = useState("simple");
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState(null);
   const [copyStatus, setCopyStatus] = useState("");
@@ -91,12 +234,17 @@ export function ScriptGeneratorPage() {
   const remaining = STORY_LIMIT - form.storyIdea.length;
 
   const isProMode = activeMode === "pro";
+  const isSimpleMode = templateMode === "simple";
   const { usageLimit, aiModeEnabled, subscriptionStatus } = proModeState;
 
   function updateField(key, value) {
     if (key === "storyIdea" && value.length > STORY_LIMIT) return;
     setForm((current) => ({ ...current, [key]: value }));
     setError("");
+  }
+
+  function currentPayload() {
+    return isSimpleMode ? buildSimplePayload(form) : form;
   }
 
   function generateWithCurrentForm() {
@@ -110,7 +258,7 @@ export function ScriptGeneratorPage() {
     setCopyStatus("");
 
     window.setTimeout(() => {
-      setResult(generateWithTemplate(form));
+      setResult(generateWithTemplate(currentPayload()));
       setIsLoading(false);
     }, 350);
   }
@@ -159,6 +307,10 @@ export function ScriptGeneratorPage() {
     }
   }
 
+  const storyPlaceholder = isSimpleMode
+    ? "Example: A poor student finds out his best friend secretly betrayed him."
+    : "Example: A poor student finds out his best friend secretly paid the teacher to make him fail the exam.";
+
   return html`
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <section className="max-w-4xl min-w-0">
@@ -181,7 +333,7 @@ export function ScriptGeneratorPage() {
         >
           <span className="flex min-w-0 items-center gap-2 text-lg font-black"><${WandSparkles} size=${20} /> Free Template Mode</span>
           <span className="mt-2 block text-sm leading-6 text-white/65">
-            Fast, free script generation using smart templates. Great for quick ideas and inspiration.
+            Fast, free script generation using Simple Mode or Detailed Mode.
           </span>
         </button>
         <button
@@ -190,9 +342,9 @@ export function ScriptGeneratorPage() {
           }`}
           onClick=${() => setActiveMode("pro")}
         >
-          <span className="flex min-w-0 items-center gap-2 text-lg font-black"><${Crown} size=${20} /> Pro AI Mode</span>
+          <span className="flex min-w-0 items-center gap-2 text-lg font-black"><${Crown} size=${20} /> Pro AI Studio</span>
           <span className="mt-2 block text-sm leading-6 text-white/65">
-            Coming soon. Unlock real AI generation that understands your full story idea and creates more detailed scripts.
+            Coming soon. Full story understanding, saved characters, episode series and platform-specific versions.
           </span>
         </button>
       </div>
@@ -204,7 +356,7 @@ export function ScriptGeneratorPage() {
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-lime-300 text-slate-950">
                   <${Lock} size=${24} />
                 </div>
-                <h2 className="mt-5 text-2xl font-black">Pro AI Mode is coming soon</h2>
+                <h2 className="mt-5 text-2xl font-black">Pro AI Studio is coming soon</h2>
                 <p className="mt-3 text-sm leading-7 text-white/68">${getProModeMessage()}</p>
                 <div className="mt-5 grid gap-3 text-sm text-white/70">
                   <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
@@ -227,51 +379,72 @@ export function ScriptGeneratorPage() {
         : html`
             <section className="mt-6 grid gap-6 lg:grid-cols-[.92fr_1.08fr] lg:items-start">
               <form className="glass-panel rounded-lg p-4 sm:p-5" onSubmit=${generate}>
-                <label className="text-sm font-bold text-white/78" htmlFor="story-idea">Your Story Idea</label>
+                <div className="grid gap-2 rounded-lg border border-white/10 bg-black/20 p-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick=${() => setTemplateMode("simple")}
+                    className=${`focus-ring rounded-md px-4 py-3 text-left text-sm font-extrabold transition ${
+                      isSimpleMode ? "bg-lime-300 text-slate-950" : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    Simple Mode
+                  </button>
+                  <button
+                    type="button"
+                    onClick=${() => setTemplateMode("detailed")}
+                    className=${`focus-ring rounded-md px-4 py-3 text-left text-sm font-extrabold transition ${
+                      !isSimpleMode ? "bg-lime-300 text-slate-950" : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    Detailed Mode
+                  </button>
+                </div>
+
+                <p className="mt-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm leading-7 text-white/68">
+                  ${isSimpleMode
+                    ? "Fast mode for quick ideas. Enter your story idea, choose a few basics, and generate a ready-to-use short drama script."
+                    : "Advanced mode for creators who want more control over platform, characters, conflict, tone, language and script style."}
+                </p>
+
+                <label className="mt-5 block text-sm font-bold text-white/78" htmlFor="story-idea">Your Story Idea</label>
                 <textarea
                   id="story-idea"
                   value=${form.storyIdea}
                   maxLength=${STORY_LIMIT}
                   onInput=${(event) => updateField("storyIdea", event.target.value)}
-                  placeholder="Example: A poor student finds out his best friend secretly paid the teacher to make him fail the exam."
+                  placeholder=${storyPlaceholder}
                   className="focus-ring mt-2 min-h-40 w-full resize-y rounded-lg border border-white/10 bg-white px-3 py-3 text-sm font-semibold leading-6 text-slate-950 caret-slate-950 placeholder:text-slate-500"
                 ></textarea>
                 <div className="mt-2 flex items-center justify-between gap-3 text-xs text-white/55">
-                  <span>Optional, but the result will follow your idea more closely when you add one.</span>
+                  <span>${isSimpleMode ? "This is the main input. The template engine will infer missing details from your idea." : "Optional, but the result will follow your idea more closely when you add one."}</span>
                   <span className=${remaining < 100 ? "font-bold text-amber-300" : "font-semibold text-white/60"}>${form.storyIdea.length}/${STORY_LIMIT}</span>
                 </div>
 
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  <${Field} label="Genre" value=${form.genre} options=${generatorOptions.genre} onChange=${(value) => updateField("genre", value)} />
-                  <${Field} label="Length" value=${form.length} options=${generatorOptions.length} onChange=${(value) => updateField("length", value)} />
-                  <${Field} label="Platform" value=${form.platform} options=${generatorOptions.platform} onChange=${(value) => updateField("platform", value)} />
-                  <${Field} label="Main Character" value=${form.mainCharacter} options=${generatorOptions.mainCharacter} onChange=${(value) => updateField("mainCharacter", value)} />
-                  <${Field} label="Relationship" value=${form.relationship} options=${generatorOptions.relationship} onChange=${(value) => updateField("relationship", value)} />
-                  <${Field} label="Main Conflict" value=${form.mainConflict} options=${generatorOptions.mainConflict} onChange=${(value) => updateField("mainConflict", value)} />
-                  <${Field} label="Tone" value=${form.tone} options=${generatorOptions.tone} onChange=${(value) => updateField("tone", value)} />
-                  <${Field} label="Ending Type" value=${form.endingType} options=${generatorOptions.endingType} onChange=${(value) => updateField("endingType", value)} />
-                  <${Field} label="Language" value=${form.language} options=${generatorOptions.language} onChange=${(value) => updateField("language", value)} />
-                  <${Field} label="Output Style" value=${form.outputStyle} options=${generatorOptions.outputStyle} onChange=${(value) => updateField("outputStyle", value)} />
-                </div>
+                ${isSimpleMode
+                  ? html`
+                      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                        <${Field} label="Genre" value=${normalizedSimpleValue("genre", form.genre)} options=${simpleOptions.genre} onChange=${(value) => updateField("genre", value)} />
+                        <${Field} label="Length" value=${normalizedSimpleValue("length", form.length)} options=${simpleOptions.length} onChange=${(value) => updateField("length", value)} />
+                        <${Field} label="Tone" value=${normalizedSimpleValue("tone", form.tone)} options=${simpleOptions.tone} onChange=${(value) => updateField("tone", value)} />
+                        <${Field} label="Ending Type" value=${normalizedSimpleValue("endingType", form.endingType)} options=${simpleOptions.endingType} onChange=${(value) => updateField("endingType", value)} />
+                      </div>
+                    `
+                  : html`
+                      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                        <${Field} label="Genre" value=${form.genre} options=${generatorOptions.genre} onChange=${(value) => updateField("genre", value)} />
+                        <${Field} label="Length" value=${form.length} options=${generatorOptions.length} onChange=${(value) => updateField("length", value)} />
+                        <${Field} label="Platform" value=${form.platform} options=${generatorOptions.platform} onChange=${(value) => updateField("platform", value)} />
+                        <${Field} label="Main Character" value=${form.mainCharacter} options=${generatorOptions.mainCharacter} onChange=${(value) => updateField("mainCharacter", value)} />
+                        <${Field} label="Relationship" value=${form.relationship} options=${generatorOptions.relationship} onChange=${(value) => updateField("relationship", value)} />
+                        <${Field} label="Main Conflict" value=${form.mainConflict} options=${generatorOptions.mainConflict} onChange=${(value) => updateField("mainConflict", value)} />
+                        <${Field} label="Tone" value=${form.tone} options=${generatorOptions.tone} onChange=${(value) => updateField("tone", value)} />
+                        <${Field} label="Ending Type" value=${form.endingType} options=${generatorOptions.endingType} onChange=${(value) => updateField("endingType", value)} />
+                        <${Field} label="Language" value=${form.language} options=${generatorOptions.language} onChange=${(value) => updateField("language", value)} />
+                        <${Field} label="Output Style" value=${form.outputStyle} options=${generatorOptions.outputStyle} onChange=${(value) => updateField("outputStyle", value)} />
+                      </div>
+                    `}
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white">
-                    <${WandSparkles} size=${18} />
-                    ${isLoading ? "Generating..." : "Generate Script"}
-                  </button>
-                  <button type="button" onClick=${regenerate} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-lime-300/45 px-5 py-3 text-sm font-extrabold text-lime-300 transition hover:bg-lime-300 hover:text-slate-950">
-                    <${RotateCcw} size=${17} />
-                    Regenerate
-                  </button>
-                  <button type="button" onClick=${clearForm} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 px-5 py-3 text-sm font-bold text-white transition hover:border-lime-300 hover:text-lime-300">
-                    <${Eraser} size=${17} />
-                    Clear
-                  </button>
-                  <button type="button" onClick=${copyResult} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-lime-300">
-                    <${Clipboard} size=${17} />
-                    Copy Result
-                  </button>
-                </div>
+                <${FormActions} isLoading=${isLoading} regenerate=${regenerate} clearForm=${clearForm} copyResult=${copyResult} />
                 ${error && html`<p className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 p-3 text-sm font-semibold text-red-200">${error}</p>`}
                 ${copyStatus && html`<p className="mt-4 rounded-lg border border-lime-300/30 bg-lime-300/10 p-3 text-sm font-semibold text-lime-300">${copyStatus}</p>`}
               </form>

@@ -10,5 +10,5 @@ export async function generateWithAI() {
 }
 
 export function getProModeMessage() {
-  return "Coming soon. Pro AI Mode will unlock real AI generation, longer scripts, better story understanding and premium templates.";
+  return "Coming soon. Pro AI Studio will understand full story ideas, save characters, generate episode series and create platform-specific versions.";
 }
