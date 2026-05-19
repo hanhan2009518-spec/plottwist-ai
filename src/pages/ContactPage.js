@@ -1,39 +1,15 @@
 import React, { useState } from "react";
 import htm from "htm";
 import { Send } from "lucide-react";
-import { CONTACT_EMAIL, submitEmailForm } from "../lib/emailService.js";
+import { CONTACT_EMAIL, FORM_ACTION, WEB3FORMS_ACCESS_KEY, formReturnUrl } from "../lib/emailService.js";
 
 const html = htm.bind(React.createElement);
 
 export function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState("idle");
-  const [notice, setNotice] = useState("");
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setStatus("loading");
-    setNotice("");
-
-    try {
-      await submitEmailForm({
-        source: "Contact form",
-        subject: "PlotTwist AI - Contact form",
-        name: form.name,
-        email: form.email,
-        message: form.message
-      });
-      setStatus("success");
-      setNotice("Message sent. We will read it at the PlotTwist AI inbox.");
-      setForm({ name: "", email: "", message: "" });
-    } catch (error) {
-      setStatus("error");
-      setNotice(error.message || "Message could not be sent. Please email us directly.");
-    }
   }
 
   return html`
@@ -46,7 +22,14 @@ export function ContactPage() {
           <a className="font-bold text-lime-300 hover:text-white" href=${`mailto:${CONTACT_EMAIL}`}> ${CONTACT_EMAIL}</a>.
         </p>
 
-        <form className="mt-8 grid gap-4" onSubmit=${handleSubmit}>
+        <form className="mt-8 grid gap-4" action=${FORM_ACTION} method="POST">
+          <input type="hidden" name="access_key" value=${WEB3FORMS_ACCESS_KEY} />
+          <input type="hidden" name="subject" value="PlotTwist AI - Contact form" />
+          <input type="hidden" name="from_name" value="PlotTwist AI" />
+          <input type="hidden" name="redirect" value=${formReturnUrl("/contact?message=sent")} />
+          <input type="checkbox" name="botcheck" tabIndex="-1" autoComplete="off" className="hidden" style=${{ display: "none" }} />
+          <input type="hidden" name="source" value="Contact form" />
+          <input type="hidden" name="website" value="PlotTwist AI" />
           <label>
             <span className="text-sm font-bold text-white/78">Name</span>
             <input
@@ -80,11 +63,10 @@ export function ContactPage() {
               placeholder="What should PlotTwist AI generate next?"
             ></textarea>
           </label>
-          <button disabled=${status === "loading"} className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-max">
+          <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white sm:w-max">
             <${Send} size=${17} />
-            ${status === "loading" ? "Sending..." : "Send message"}
+            Send message
           </button>
-          ${notice && html`<p className=${`text-sm font-semibold ${status === "error" ? "text-rose-200" : "text-lime-200"}`}>${notice}</p>`}
           <p className="text-xs leading-5 text-white/52">Submissions are sent to the PlotTwist AI inbox.</p>
         </form>
       </section>
