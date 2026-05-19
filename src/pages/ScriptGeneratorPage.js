@@ -161,36 +161,36 @@ export function ScriptGeneratorPage() {
 
   return html`
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <section className="max-w-4xl">
+      <section className="max-w-4xl min-w-0">
         <p className="inline-flex items-center gap-2 rounded-lg border border-lime-300/35 bg-lime-300/10 px-3 py-2 text-sm font-bold text-lime-300">
           <${Clapperboard} size=${16} />
           Free Template Mode available now
         </p>
-        <h1 className="mt-5 text-3xl font-black tracking-tight sm:text-5xl">Short Drama Script Generator</h1>
-        <p className="mt-4 text-base leading-8 text-white/68">
+        <h1 className="mt-5 max-w-sm break-words text-3xl font-black tracking-tight sm:max-w-none sm:text-5xl">Short Drama Script Generator</h1>
+        <p className="mt-4 max-w-sm text-base leading-8 text-white/68 sm:max-w-2xl">
           Describe your idea, choose a style, and generate a ready-to-use short drama script.
         </p>
       </section>
 
-      <div className="mt-8 grid gap-3 md:grid-cols-2">
+      <div className="mt-8 grid min-w-0 gap-3 md:grid-cols-2">
         <button
-          className=${`focus-ring rounded-lg border p-5 text-left transition ${
+          className=${`focus-ring min-w-0 rounded-lg border p-5 text-left transition ${
             activeMode === "template" ? "border-lime-300 bg-lime-300/10" : "border-white/10 bg-white/[0.04] hover:border-white/25"
           }`}
           onClick=${() => setActiveMode("template")}
         >
-          <span className="flex items-center gap-2 text-lg font-black"><${WandSparkles} size=${20} /> Free Template Mode</span>
+          <span className="flex min-w-0 items-center gap-2 text-lg font-black"><${WandSparkles} size=${20} /> Free Template Mode</span>
           <span className="mt-2 block text-sm leading-6 text-white/65">
             Fast, free script generation using smart templates. Great for quick ideas and inspiration.
           </span>
         </button>
         <button
-          className=${`focus-ring rounded-lg border p-5 text-left transition ${
+          className=${`focus-ring min-w-0 rounded-lg border p-5 text-left transition ${
             activeMode === "pro" ? "border-lime-300 bg-lime-300/10" : "border-white/10 bg-white/[0.04] hover:border-white/25"
           }`}
           onClick=${() => setActiveMode("pro")}
         >
-          <span className="flex items-center gap-2 text-lg font-black"><${Crown} size=${20} /> Pro AI Mode</span>
+          <span className="flex min-w-0 items-center gap-2 text-lg font-black"><${Crown} size=${20} /> Pro AI Mode</span>
           <span className="mt-2 block text-sm leading-6 text-white/65">
             Coming soon. Unlock real AI generation that understands your full story idea and creates more detailed scripts.
           </span>
@@ -207,10 +207,18 @@ export function ScriptGeneratorPage() {
                 <h2 className="mt-5 text-2xl font-black">Pro AI Mode is coming soon</h2>
                 <p className="mt-3 text-sm leading-7 text-white/68">${getProModeMessage()}</p>
                 <div className="mt-5 grid gap-3 text-sm text-white/70">
-                  <p><strong className="text-white">isProMode:</strong> ${String(isProMode)}</p>
-                  <p><strong className="text-white">usageLimit:</strong> ${usageLimit} free template generations placeholder</p>
-                  <p><strong className="text-white">aiModeEnabled:</strong> ${String(aiModeEnabled)}</p>
-                  <p><strong className="text-white">subscriptionStatus:</strong> ${subscriptionStatus}</p>
+                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                    <p className="font-extrabold text-white">Current access</p>
+                    <p className="mt-1 capitalize">${subscriptionStatus} plan with Free Template Mode available now.</p>
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                    <p className="font-extrabold text-white">AI generation</p>
+                    <p className="mt-1">${aiModeEnabled ? "Enabled" : "Not enabled yet. No real AI API is connected in this MVP."}</p>
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                    <p className="font-extrabold text-white">Planned free allowance</p>
+                    <p className="mt-1">${usageLimit} template generations placeholder before future Pro limits are added.</p>
+                  </div>
                 </div>
               </div>
               <${WaitlistSection} compact=${true} />

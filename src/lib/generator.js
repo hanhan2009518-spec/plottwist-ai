@@ -502,10 +502,22 @@ function buildScript(context, hook, scene, twist, conflictDetail) {
 
 function buildProductionNotes(context) {
   const byType = (type) => templateLibrary.productionNoteTemplates.filter((item) => item.type === type).map((item) => item.text);
+  const musicPool = byType("music");
+  const toneLower = `${context.tone} ${context.genre} ${context.mainConflict}`.toLowerCase();
+  const music =
+    toneLower.includes("funny") || toneLower.includes("comedy")
+      ? musicPool.find((item) => item.toLowerCase().includes("comedic")) || pick(musicPool)
+      : toneLower.includes("suspense") || toneLower.includes("mystery") || toneLower.includes("shocking")
+        ? musicPool.find((item) => item.toLowerCase().includes("suspense") || item.toLowerCase().includes("heartbeat")) || pick(musicPool)
+        : toneLower.includes("sad") || toneLower.includes("emotional") || toneLower.includes("heartwarming")
+          ? musicPool.find((item) => item.toLowerCase().includes("piano")) || pick(musicPool)
+          : toneLower.includes("horror") || toneLower.includes("creepy") || toneLower.includes("dark")
+            ? musicPool.find((item) => item.toLowerCase().includes("dark")) || pick(musicPool)
+            : pick(musicPool);
 
   return {
     suggestedShots: pick(byType("shots")),
-    musicMood: `${context.tone} ${context.genre} mood. ${pick(byType("music"))}`,
+    musicMood: `${context.tone} ${context.genre} mood. ${music}`,
     textOverlayIdea: context.storyIdea
       ? `Text overlay: "What would you do if ${ideaShort(context.storyIdea).toLowerCase()}?"`
       : pick(byType("overlay")),
@@ -555,7 +567,33 @@ function languageWrap(context, result) {
 }
 
 function buildHashtags(context) {
-  const group = pick(templateLibrary.hashtagGroups);
+  const relevanceTerms = [
+    context.platform,
+    context.genre,
+    context.mainConflict,
+    context.relationship,
+    context.endingType,
+    ...context.detectedCharacters,
+    ...context.keywords
+  ]
+    .join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((term) => term.length > 2);
+
+  const scoredGroups = templateLibrary.hashtagGroups
+    .map((group) => {
+      const groupText = group.join(" ").toLowerCase().replace(/#/g, "");
+      const score = relevanceTerms.reduce((total, term) => total + (groupText.includes(term) ? 1 : 0), 0);
+      return { group, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  const bestScore = scoredGroups[0]?.score || 0;
+  const bestGroups = bestScore ? scoredGroups.filter((item) => item.score === bestScore).map((item) => item.group) : [];
+  const group = pick(bestGroups, templateLibrary.hashtagGroups[0]);
   const dynamic = [
     `#${context.platform.replace(/\s+/g, "")}`,
     `#${context.genre.replace(/\s+/g, "")}`,
