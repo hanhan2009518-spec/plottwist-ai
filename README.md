@@ -12,6 +12,7 @@ It is a static React MVP that uses:
 - Tailwind CSS from CDN
 - Local JavaScript modules under `src/`
 - A lightweight Node preview server for local clean-route SEO checks
+- Vercel Serverless Functions under `api/` for future server-side AI/payment work
 - A static `dist/` build for Vercel
 
 ## Current Version
@@ -29,11 +30,14 @@ The current version is **Free Template Mode**.
 
 Pro AI Mode is planned for a future paid version, but it is disabled by default right now.
 
-The current project is static React, not Vite and not Next.js, so browser code cannot safely hold a real `OPENAI_API_KEY`. Future AI generation must go through a server-side route such as the included Vercel Function placeholder:
+The current project is static React, not Vite and not Next.js, so browser code cannot safely hold a real `OPENAI_API_KEY`. Vite front-end code also cannot safely hold API keys because `VITE_*` variables are browser-visible. Future AI generation must go through a server-side route such as the included Vercel Function placeholders:
 
 ```text
 POST /api/generate-ai
+POST /api/generate-ai-script
 ```
+
+`/api/generate-ai-script` accepts the future Pro AI form payload and currently supports safe mock behavior only. It reads `process.env.OPENAI_API_KEY` only inside the serverless function and never exposes that value to client code.
 
 Planned Pro AI Mode may include:
 
@@ -59,6 +63,7 @@ No state currently calls OpenAI.
 - OpenAI API usage is billed by usage, so production AI Mode needs server-side usage limits.
 - `.env.example` documents planned environment variables only.
 - The current `/api/generate-ai` local placeholder does not call OpenAI.
+- The current `/api/generate-ai-script` route does not call OpenAI. If `AI_TEST_MODE=true`, it can return a mock AI result for integration testing.
 - The current AI Mode is disabled by default and requires feature flags plus future login/payment checks before real use.
 
 ## Local Run
@@ -133,6 +138,7 @@ Planned Pro AI and payment variables are also listed in `.env.example`:
 
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
+AI_TEST_MODE=false
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
 NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
@@ -143,6 +149,14 @@ VITE_MONTHLY_GENERATION_LIMIT=100
 ```
 
 For this static React MVP, `VITE_*` values are public feature flags only. Do not put private keys in any `VITE_*` or `NEXT_PUBLIC_*` variable because those values are intended for browser-visible code in Vite or Next.js.
+
+When deploying to Vercel, add private values such as `OPENAI_API_KEY` in:
+
+```text
+Vercel Project Settings -> Environment Variables
+```
+
+Local development with `node server.mjs` serves the static site only. Vercel API routes may not be fully available locally unless you use Vercel's local development tooling. On production Vercel, files under `api/` are deployed as serverless functions.
 
 For the current static version, update the public site URL in:
 
@@ -182,6 +196,7 @@ https://tryplottwistai.com/sitemap.xml
 .
 ├── api/
 │   ├── generate-ai.js
+│   ├── generate-ai-script.js
 │   └── generate-ai.placeholder.md
 ├── index.html
 ├── package.json

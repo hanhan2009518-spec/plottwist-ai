@@ -11,12 +11,31 @@ export const proModeState = {
   subscriptionStatus: aiModeConfig.devProAccess ? "pro-dev" : "free"
 };
 
-export async function generateWithAI() {
-  return {
-    success: false,
-    message: "AI Mode is not enabled yet.",
-    result: "AI Mode is not enabled yet."
-  };
+export async function generateWithAI(payload = {}) {
+  try {
+    const response = await fetch("/api/generate-ai-script", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      return {
+        ok: false,
+        error: data.error || "AI Mode is not enabled yet."
+      };
+    }
+
+    return data;
+  } catch {
+    return {
+      ok: false,
+      error: "AI Mode is not available in this environment."
+    };
+  }
 }
 
 export function getProModeMessage() {

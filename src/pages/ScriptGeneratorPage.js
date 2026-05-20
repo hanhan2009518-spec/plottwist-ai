@@ -249,11 +249,37 @@ function ProAiForm() {
   const [storyIdea, setStoryIdea] = useState("");
   const [outputType, setOutputType] = useState("Complete script package");
   const [message, setMessage] = useState("");
+  const [aiResult, setAiResult] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
-    const response = await generateWithAI({ storyIdea, outputType });
-    setMessage(response.message || "AI Mode is not enabled yet.");
+    setIsGenerating(true);
+    setMessage("");
+    setAiResult(null);
+
+    const response = await generateWithAI({
+      userIdea: storyIdea,
+      genre: "School",
+      length: "60 seconds",
+      platform: "TikTok",
+      mainCharacter: "Student",
+      relationship: "Best friends",
+      conflict: "Betrayal",
+      tone: "Dramatic",
+      endingType: "Plot Twist",
+      language: "English",
+      outputStyle: outputType
+    });
+
+    if (response.ok) {
+      setAiResult(response.result);
+      setMessage(response.source === "mock" ? "Mock AI result generated." : "");
+    } else {
+      setMessage(response.error || "AI Mode is not enabled yet.");
+    }
+
+    setIsGenerating(false);
   }
 
   return html`
@@ -276,9 +302,34 @@ function ProAiForm() {
       />
       <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white">
         <${WandSparkles} size=${18} />
-        Generate with AI placeholder
+        ${isGenerating ? "Generating..." : "Generate AI Script"}
       </button>
       ${message && html`<p className="rounded-lg border border-amber-300/35 bg-amber-300/10 p-3 text-sm font-semibold text-amber-200">${message}</p>`}
+      ${aiResult &&
+      html`
+        <div className="grid gap-4 rounded-lg border border-white/10 bg-black/20 p-4">
+          <${OutputBlock} title="Title"><p className="text-lg font-black text-white">${aiResult.title}</p><//>
+          <${OutputBlock} title="Hook"><p>${aiResult.hook}</p><//>
+          <${OutputBlock} title="Characters">
+            <ul className="list-disc space-y-2 pl-5">${aiResult.characters.map((item) => html`<li key=${item}>${item}</li>`)}</ul>
+          <//>
+          <${OutputBlock} title="Scene"><p>${aiResult.scene}</p><//>
+          <${OutputBlock} title="Script">
+            <ol className="list-decimal space-y-3 pl-5">${aiResult.script.map((line) => html`<li key=${line}>${line}</li>`)}</ol>
+          <//>
+          <${OutputBlock} title="Ending"><p>${aiResult.ending}</p><//>
+          <${OutputBlock} title="Caption"><p>${aiResult.caption}</p><//>
+          <${OutputBlock} title="Hashtags"><p className="break-words font-bold text-white">${aiResult.hashtags.join(" ")}</p><//>
+          <${OutputBlock} title="Production Notes">
+            <ul className="list-disc space-y-2 pl-5">
+              <li><strong className="text-white">Shots:</strong> ${aiResult.productionNotes.shots.join(", ")}</li>
+              <li><strong className="text-white">Music mood:</strong> ${aiResult.productionNotes.musicMood}</li>
+              <li><strong className="text-white">Text overlay:</strong> ${aiResult.productionNotes.textOverlay}</li>
+              <li><strong className="text-white">Editing tip:</strong> ${aiResult.productionNotes.editingTip}</li>
+            </ul>
+          <//>
+        </div>
+      `}
     </form>
   `;
 }
