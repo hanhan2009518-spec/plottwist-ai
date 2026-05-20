@@ -1,14 +1,24 @@
+import { aiModeConfig } from "./aiModeConfig.js";
+
 export const proModeState = {
-  isProMode: false,
-  usageLimit: 20,
-  aiModeEnabled: false,
-  subscriptionStatus: "free"
+  isProMode: aiModeConfig.devProAccess,
+  usageLimit: aiModeConfig.monthlyGenerationLimit,
+  monthlyGenerationLimit: aiModeConfig.monthlyGenerationLimit,
+  aiModeEnabled: aiModeConfig.aiModeEnabled,
+  requireProForAI: aiModeConfig.requireProForAI,
+  freeTemplateModeEnabled: aiModeConfig.freeTemplateModeEnabled,
+  devProAccess: aiModeConfig.devProAccess,
+  subscriptionStatus: aiModeConfig.devProAccess ? "pro-dev" : "free"
 };
 
 export async function generateWithAI() {
-  throw new Error("Pro AI Mode is coming soon. Real AI generation must run through a secure server endpoint.");
+  return {
+    success: false,
+    message: "AI Mode is not enabled yet.",
+    result: "AI Mode is not enabled yet."
+  };
 }
 
 export function getProModeMessage() {
-  return "Coming soon. Pro AI Studio will understand full story ideas, save characters, generate episode series and create platform-specific versions.";
+  return "Pro AI Studio will understand full story ideas, save characters, generate episode series and create platform-specific versions.";
 }

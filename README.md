@@ -23,10 +23,19 @@ The current version is **Free Template Mode**.
 - No real Stripe payment is connected.
 - Script generation uses local front-end templates and keyword-aware logic.
 - Waitlist signup is local UI only.
+- Free Template Mode does not spend any AI API money because it runs from local templates.
 
-## Planned Pro AI Mode
+## Planned Pro AI Mode Architecture
 
-Pro AI Mode is planned for a future paid version. It may include:
+Pro AI Mode is planned for a future paid version, but it is disabled by default right now.
+
+The current project is static React, not Vite and not Next.js, so browser code cannot safely hold a real `OPENAI_API_KEY`. Future AI generation must go through a server-side route such as the included Vercel Function placeholder:
+
+```text
+POST /api/generate-ai
+```
+
+Planned Pro AI Mode may include:
 
 - Real AI script generation
 - Better understanding of full story ideas
@@ -35,14 +44,22 @@ Pro AI Mode is planned for a future paid version. It may include:
 - More monthly generations
 - Premium prompt packs
 
-The current Pro AI Mode UI is a placeholder only.
+The current Pro AI Mode UI supports three states:
+
+- AI Mode disabled: shows "Pro AI Studio is coming soon."
+- AI Mode enabled without Pro access: shows a locked upgrade state.
+- AI Mode enabled with development Pro access: shows an AI form that still returns a placeholder response.
+
+No state currently calls OpenAI.
 
 ## Security Notes
 
 - Do not put `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, or webhook secrets in front-end code.
-- Future AI generation must be handled through a secure server-side API route or backend service.
+- Future AI generation must be handled through a secure server-side API route, Vercel Function, Next.js API route, or backend service.
+- OpenAI API usage is billed by usage, so production AI Mode needs server-side usage limits.
 - `.env.example` documents planned environment variables only.
 - The current `/api/generate-ai` local placeholder does not call OpenAI.
+- The current AI Mode is disabled by default and requires feature flags plus future login/payment checks before real use.
 
 ## Local Run
 
@@ -119,7 +136,13 @@ OPENAI_API_KEY=your_openai_api_key_here
 STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
 NEXT_PUBLIC_SITE_URL=https://tryplottwistai.com
+VITE_AI_MODE_ENABLED=false
+VITE_REQUIRE_PRO_FOR_AI=true
+VITE_DEV_PRO_ACCESS=false
+VITE_MONTHLY_GENERATION_LIMIT=100
 ```
+
+For this static React MVP, `VITE_*` values are public feature flags only. Do not put private keys in any `VITE_*` or `NEXT_PUBLIC_*` variable because those values are intended for browser-visible code in Vite or Next.js.
 
 For the current static version, update the public site URL in:
 
@@ -158,6 +181,7 @@ https://tryplottwistai.com/sitemap.xml
 ```text
 .
 ├── api/
+│   ├── generate-ai.js
 │   └── generate-ai.placeholder.md
 ├── index.html
 ├── package.json
@@ -180,8 +204,9 @@ https://tryplottwistai.com/sitemap.xml
 
 ## Next AI And Payment Steps
 
-1. Add a secure backend API route for AI generation.
+1. Keep AI generation inside a secure backend API route or migrate to Next.js API routes.
 2. Read `OPENAI_API_KEY` only from server-side environment variables.
 3. Add Stripe Checkout and webhook handling on the server.
 4. Store subscription status and monthly usage limits in a database.
 5. Connect Pro AI Mode UI to the secure backend only after payment status is verified.
+6. Add login, user accounts, database records, monthly usage counters, abuse protection, and server-side prompt validation before enabling paid AI generation.

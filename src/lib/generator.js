@@ -92,8 +92,10 @@ export const generatorOptions = {
 
 export const proModeDefaults = {
   isProMode: false,
-  usageLimit: 20,
+  usageLimit: 100,
   aiModeEnabled: false,
+  requireProForAI: true,
+  freeTemplateModeEnabled: true,
   subscriptionStatus: "free"
 };
 
@@ -673,5 +675,9 @@ export function generateDramaScript(options = {}) {
 }
 
 export async function generateWithAI() {
-  throw new Error("Pro AI Mode is not enabled yet. Add a secure server API before connecting real AI generation.");
+  return {
+    success: false,
+    message: "AI Mode is not enabled yet.",
+    result: "AI Mode is not enabled yet."
+  };
 }

@@ -3,7 +3,7 @@ import htm from "htm";
 import { Clipboard, Clapperboard, Crown, Eraser, Lock, RotateCcw, WandSparkles } from "lucide-react";
 import { WaitlistSection } from "../components/WaitlistSection.js";
 import { generateWithTemplate, generatorOptions } from "../lib/generator.js";
-import { getProModeMessage, proModeState } from "../lib/proMode.js";
+import { generateWithAI, getProModeMessage, proModeState } from "../lib/proMode.js";
 
 const html = htm.bind(React.createElement);
 const STORY_LIMIT = 1000;
@@ -38,6 +38,15 @@ const initialForm = {
   language: "English",
   outputStyle: "Fast-paced short drama"
 };
+
+const proFeatures = [
+  "Real AI story understanding",
+  "Complete script packages",
+  "Saved characters",
+  "Episode series generation",
+  "Platform-specific versions",
+  "Bilingual output"
+];
 
 const mainCharacterSignals = [
   ["poor student", "Poor Student"],
@@ -222,6 +231,113 @@ function buildSimplePayload(form) {
   };
 }
 
+function ProFeatureList() {
+  return html`
+    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      ${proFeatures.map(
+        (feature) => html`
+          <div key=${feature} className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm font-bold text-white/78">
+            ${feature}
+          </div>
+        `
+      )}
+    </div>
+  `;
+}
+
+function ProAiForm() {
+  const [storyIdea, setStoryIdea] = useState("");
+  const [outputType, setOutputType] = useState("Complete script package");
+  const [message, setMessage] = useState("");
+
+  async function submit(event) {
+    event.preventDefault();
+    const response = await generateWithAI({ storyIdea, outputType });
+    setMessage(response.message || "AI Mode is not enabled yet.");
+  }
+
+  return html`
+    <form className="mt-5 grid gap-4" onSubmit=${submit}>
+      <div>
+        <label className="text-sm font-bold text-white/78" htmlFor="pro-story-idea">Story idea for AI Studio</label>
+        <textarea
+          id="pro-story-idea"
+          value=${storyIdea}
+          onInput=${(event) => setStoryIdea(event.target.value)}
+          placeholder="Example: A student discovers her best friend was hired to ruin her final exam."
+          className="focus-ring mt-2 min-h-36 w-full resize-y rounded-lg border border-white/10 bg-white px-3 py-3 text-sm font-semibold leading-6 text-slate-950 caret-slate-950 placeholder:text-slate-500"
+        ></textarea>
+      </div>
+      <${Field}
+        label="AI Output Type"
+        value=${outputType}
+        options=${["Complete script package", "Episode series", "Character bible", "Platform-specific versions", "Bilingual script"]}
+        onChange=${setOutputType}
+      />
+      <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-lime-300 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-white">
+        <${WandSparkles} size=${18} />
+        Generate with AI placeholder
+      </button>
+      ${message && html`<p className="rounded-lg border border-amber-300/35 bg-amber-300/10 p-3 text-sm font-semibold text-amber-200">${message}</p>`}
+    </form>
+  `;
+}
+
+function ProAiStudioPanel({ state }) {
+  const hasProAccess = state.devProAccess || state.isProMode || state.subscriptionStatus === "pro";
+  const isLocked = state.aiModeEnabled && state.requireProForAI && !hasProAccess;
+
+  return html`
+    <section className="mt-6 grid gap-6 lg:grid-cols-[.95fr_1.05fr]">
+      <div className="glass-panel rounded-lg p-6">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-lime-300 text-slate-950">
+          <${Lock} size=${24} />
+        </div>
+
+        ${!state.aiModeEnabled
+          ? html`
+              <h2 className="mt-5 text-2xl font-black">Pro AI Studio is coming soon.</h2>
+              <p className="mt-3 text-sm leading-7 text-white/68">
+                ${getProModeMessage()} No real AI API is connected in this MVP.
+              </p>
+              <${ProFeatureList} />
+            `
+          : isLocked
+            ? html`
+                <h2 className="mt-5 text-2xl font-black">Upgrade to Pro to use AI Studio.</h2>
+                <p className="mt-3 text-sm leading-7 text-white/68">
+                  AI Mode is enabled for testing, but Pro access is required before real generation can run.
+                </p>
+                <${ProFeatureList} />
+              `
+            : html`
+                <h2 className="mt-5 text-2xl font-black">AI generation form</h2>
+                <p className="mt-3 text-sm leading-7 text-white/68">
+                  Developer Pro access is enabled, but this still uses a placeholder and does not call OpenAI.
+                </p>
+                <${ProAiForm} />
+              `}
+
+        <div className="mt-5 grid gap-3 text-sm text-white/70">
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+            <p className="font-extrabold text-white">Current access</p>
+            <p className="mt-1 capitalize">${state.subscriptionStatus} plan with Free Template Mode ${state.freeTemplateModeEnabled ? "available now" : "disabled"}.</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+            <p className="font-extrabold text-white">AI Mode status</p>
+            <p className="mt-1">${state.aiModeEnabled ? "Enabled by feature flag" : "Disabled by default. No real AI API is connected."}</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+            <p className="font-extrabold text-white">Monthly generation limit</p>
+            <p className="mt-1">${state.monthlyGenerationLimit} planned Pro generations after login, payment and server usage tracking are added.</p>
+          </div>
+        </div>
+      </div>
+      <${WaitlistSection} compact=${true} />
+    </section>
+  `;
+}
+
 export function ScriptGeneratorPage() {
   const [activeMode, setActiveMode] = useState("template");
   const [templateMode, setTemplateMode] = useState("simple");
@@ -235,7 +351,6 @@ export function ScriptGeneratorPage() {
 
   const isProMode = activeMode === "pro";
   const isSimpleMode = templateMode === "simple";
-  const { usageLimit, aiModeEnabled, subscriptionStatus } = proModeState;
 
   function updateField(key, value) {
     if (key === "storyIdea" && value.length > STORY_LIMIT) return;
@@ -350,32 +465,7 @@ export function ScriptGeneratorPage() {
       </div>
 
       ${isProMode
-        ? html`
-            <section className="mt-6 grid gap-6 lg:grid-cols-[.95fr_1.05fr]">
-              <div className="glass-panel rounded-lg p-6">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-lime-300 text-slate-950">
-                  <${Lock} size=${24} />
-                </div>
-                <h2 className="mt-5 text-2xl font-black">Pro AI Studio is coming soon</h2>
-                <p className="mt-3 text-sm leading-7 text-white/68">${getProModeMessage()}</p>
-                <div className="mt-5 grid gap-3 text-sm text-white/70">
-                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
-                    <p className="font-extrabold text-white">Current access</p>
-                    <p className="mt-1 capitalize">${subscriptionStatus} plan with Free Template Mode available now.</p>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
-                    <p className="font-extrabold text-white">AI generation</p>
-                    <p className="mt-1">${aiModeEnabled ? "Enabled" : "Not enabled yet. No real AI API is connected in this MVP."}</p>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
-                    <p className="font-extrabold text-white">Planned free allowance</p>
-                    <p className="mt-1">${usageLimit} template generations placeholder before future Pro limits are added.</p>
-                  </div>
-                </div>
-              </div>
-              <${WaitlistSection} compact=${true} />
-            </section>
-          `
+        ? html`<${ProAiStudioPanel} state=${proModeState} />`
         : html`
             <section className="mt-6 grid gap-6 lg:grid-cols-[.92fr_1.08fr] lg:items-start">
               <form className="glass-panel rounded-lg p-4 sm:p-5" onSubmit=${generate}>
