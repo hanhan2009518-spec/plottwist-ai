@@ -256,3 +256,47 @@ https://tryplottwistai.com/terms-of-use
 ```
 
 Blog 文章页也已经包含在 sitemap 里。
+
+## 9. 处理“网页会自动重定向”
+
+如果 Search Console 提示:
+
+```text
+网页会自动重定向
+Page with redirect
+```
+
+这通常不是网站坏了。它经常出现在这些 URL 上:
+
+- `http://tryplottwistai.com/...` 跳到 `https://tryplottwistai.com/...`
+- `https://www.tryplottwistai.com/...` 跳到 `https://tryplottwistai.com/...`
+- 旧 Vercel 临时域名跳到正式域名
+
+这些被重定向的 URL 本身不会被索引，Google 应该索引最终的正式 URL。
+
+当前项目的正式索引版本是:
+
+```text
+https://tryplottwistai.com
+```
+
+处理方法:
+
+1. 确认 sitemap 只提交:
+
+```text
+https://tryplottwistai.com/sitemap.xml
+```
+
+2. 不要提交 `http://`、`www` 或 Vercel 临时域名的 sitemap。
+3. 在 URL Inspection 里检查最终 URL，例如:
+
+```text
+https://tryplottwistai.com/
+https://tryplottwistai.com/short-drama-script-generator
+```
+
+4. 如果最终 URL 显示可以被 Google 编入索引，点击 Request Indexing。
+5. 如果报告里的示例 URL 是 `http`、`www` 或 Vercel 临时域名，可以把它当作正常的规范化现象。
+
+代码层面已经在 `vercel.json` 里把 `www.tryplottwistai.com` 和旧 Vercel 临时域名重定向到正式域名，避免 Google 分散抓取多个版本。

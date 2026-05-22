@@ -2,5 +2,29 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tryplottwistai.com"
+        }
+      ],
+      "destination": "https://tryplottwistai.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "plottwist-ai-iota.vercel.app"
+        }
+      ],
+      "destination": "https://tryplottwistai.com/$1",
+      "permanent": true
+    }
+  ]
 }
